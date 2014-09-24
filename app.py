@@ -3,8 +3,8 @@
 from __future__ import print_function
 
 import os
+import time
 
-import logging
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
@@ -45,6 +45,7 @@ class IndexHandler(tornado.web.RequestHandler):
 class SocketHandler(tornado.websocket.WebSocketHandler):
 
     clients = set()
+    start_time = time.time()
 
     def get_compression_options(self):
         # Non-None enables compression with default options.
@@ -68,6 +69,12 @@ class SocketHandler(tornado.websocket.WebSocketHandler):
                 if client == self:
                     continue
                 client.write_message(event)
+
+        # Get the current time.
+        self.write_message(json_encode({
+            "time": time.time(),
+            "strt": SocketHandler.start_time,
+        }))
 
 
 def main():

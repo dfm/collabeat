@@ -178,7 +178,7 @@
 
   // Start looping.
   function start () {
-    note_time = 0.0;
+    note_time = 0;
     start_time = context.currentTime + 0.005;
     schedule();
   }
