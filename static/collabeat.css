@@ -2,7 +2,7 @@
     display: block;
     width: 650px;
     height: 325px;
-    margin: 100px auto;
+    margin: 100px auto 20px;
 }
 
 .row {
@@ -43,4 +43,10 @@
 
 .cell.active:hover {
     background: #4682b4;
+}
+
+#button {
+  text-align: center;
+  font-weight: bold;
+  cursor: pointer;
 }

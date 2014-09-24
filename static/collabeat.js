@@ -13,6 +13,8 @@
     };
   })();
 
+  var is_playing = false;
+
   // UI functions.
   var grid_pars = {
     "ncells": 8,
@@ -30,9 +32,13 @@
         row = $el.attr("data-row"),
         col = $el.attr("data-col"),
         state = $el.attr("data-state");
-    if (state == "off") updateNote(row, col, true);
-    else if (state == "on") updateNote(row, col, false);
-    else console.log("fail");
+    if (state == "off") {
+      updateNote(row, col, true);
+      socket_handler.sendMessage("update", [row, col, true]);
+    } else if (state == "on") {
+      updateNote(row, col, false);
+      socket_handler.sendMessage("update", [row, col, false]);
+    } else console.log("fail");
   }
 
   function setupUI (el) {
@@ -54,6 +60,18 @@
     }
     $el.css("width", grid_pars.ncells * (grid_pars.cell_width + 1) + 1)
        .css("height", grid_pars.nvoices * (grid_pars.cell_height + 1) + 1);
+
+    var $button = $("#button");
+    $button.on("click", function () {
+      if (is_playing) {
+        $button.text("Start");
+        stop();
+      } else {
+        $button.text("Stop");
+        start();
+      }
+      is_playing = !is_playing;
+    });
   }
 
   function updateNoteUI(row, cell, state) {
@@ -64,9 +82,7 @@
 
   // Initialize the state.
   var current_state = new Array(grid_pars.nvoices),
-      current_voice = -1,
-      current_cell = 0,
-      note_count = 0;
+      current_cell = 0;
   for (var i = 0; i < grid_pars.nvoices; ++i) {
     current_state[i] = new Array(grid_pars.ncells);
     for (var j = 0; j < grid_pars.ncells; ++j) current_state[i][j] = false;
@@ -74,8 +90,6 @@
 
   // Function for updating the state of a specific note.
   function updateNote (row, col, new_state) {
-    if (!current_state[row][col] && new_state) note_count += 1;
-    else if (current_state[row][col] && !new_state) note_count -= 1;
     current_state[row][col] = new_state;
     updateNoteUI(row, col, new_state);
   }
@@ -141,7 +155,7 @@
     for (var i in buffer_urls) {
       var url = buffer_urls[i];
       console.log("Loading: " + url);
-      loadSample(url, i);
+      loadSample(static_path + url, i);
     }
   }
 
@@ -173,12 +187,31 @@
     clearTimeout(timeout);
   }
 
+  // Expose the start and stop.
   window.start = start;
   window.stop = stop;
+
+  // WebSockets.
+  window.socket_handler = {
+    socket: null,
+    start: function () {
+      var url = "ws://" + location.host + "/socket";
+      socket_handler.socket = new WebSocket(url);
+      socket_handler.socket.onmessage = socket_handler.showMessage;
+    },
+    showMessage: function (e) {
+      var msg = JSON.parse(e.data);
+      if (msg.t === "update") updateNote(msg.b[0], msg.b[1], msg.b[2]);
+    },
+    sendMessage: function (type, message) {
+      socket_handler.socket.send(JSON.stringify({"t": type, "b": message}));
+    }
+  };
 
   // Expose the setup function to the common namespace.
   window.setupBeat = function () {
     setupAudio();
+    socket_handler.start();
     setupUI("#grid");
   };
 
