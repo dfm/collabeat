@@ -17,9 +17,9 @@
 
   // UI functions.
   var grid_pars = {
-    "ncells": 8,
+    "ncells": 16,
     "nvoices": 4,
-    "cell_width": 50,
+    "cell_width": 20,
     "cell_height": 50
   };
 
