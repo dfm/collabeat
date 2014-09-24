@@ -1,0 +1,46 @@
+.grid {
+    display: block;
+    width: 650px;
+    height: 325px;
+    margin: 100px auto;
+}
+
+.row {
+    clear: both;
+}
+
+.cell {
+    content: " ";
+    display: inline-block;
+    float: left;
+    width: 80px;
+    height: 80px;
+    background: #eee;
+    border-color: #333;
+    border-style: solid;
+    border-top-width: 0;
+    border-bottom-width: 1px;
+    border-left-width: 0;
+    border-right-width: 1px;
+    cursor: pointer;
+}
+
+.row:first-child .cell {
+    border-top-width: 1px;
+}
+
+.cell:first-child {
+    border-left-width: 1px;
+}
+
+.cell:hover {
+    background: #bbb;
+}
+
+.cell.active {
+    background: #b0c4de;
+}
+
+.cell.active:hover {
+    background: #4682b4;
+}
